@@ -32,13 +32,23 @@
   ansible.builtin.apt:
     name: "{{ docker_packages }}"
     state: present
-  notify: Redémarrer docker
+
+- name: Configurer le storage-driver vfs pour DinD
+  ansible.builtin.copy:
+    content: |
+      {
+        "storage-driver": "vfs",
+        "features": {
+          "containerd-snapshotter": false
+        }
+      }
+    dest: /etc/docker/daemon.json
+    mode: "0644"
 
 - name: Démarrer Docker
-  ansible.builtin.service:
-    name: docker
-    state: started
-    enabled: true
+  ansible.builtin.command: service docker restart
+  changed_when: false
+  failed_when: false
 
 - name: Autoriser les utilisateurs à utiliser Docker
   ansible.builtin.user:

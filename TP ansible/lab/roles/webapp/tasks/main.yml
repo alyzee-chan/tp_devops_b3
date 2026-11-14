@@ -20,6 +20,7 @@
     name: webapp
     image: "{{ webapp_image }}:{{ webapp_version }}"
     env:
+      APP_VERSION: "{{ webapp_version }}"
       APP_ENV: "{{ webapp_env }}"
       APP_COLOR: "{{ webapp_color }}"
       REDIS_HOST: redis

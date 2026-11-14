@@ -1,7 +1,8 @@
 # Nœud cible du lab Ansible : Ubuntu + systemd + SSH, comme une petite VM
 FROM ubuntu:24.04
 ENV container=docker DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
+RUN sed -i 's/archive.ubuntu.com/mirror.ovh.net\/ubuntu/g' /etc/apt/sources.list.d/ubuntu.sources \
+ && apt-get update \
  && apt-get install -y --no-install-recommends systemd systemd-sysv openssh-server sudo python3 python3-apt ca-certificates curl iproute2 \
  && rm -rf /var/lib/apt/lists/* \
  && find /etc/systemd/system /lib/systemd/system -path '*.wants/*' \( -name '*getty*' -o -name '*udev*' -o -name 'systemd-logind*' \) -delete \

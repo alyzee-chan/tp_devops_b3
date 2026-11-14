@@ -1,0 +1,48 @@
+all:
+  children:
+    lab:
+      children:
+        db:
+          hosts:
+            db1: {}
+        web:
+          hosts:
+            web1:
+              ansible_connection: docker
+              ansible_host: lab-web1-1
+              ansible_python_interpreter: /usr/bin/python3
+              ansible_user: ansible
+              equipe: &id001
+              - nom: Alice
+                role: Dev
+              - nom: Bob
+                role: Ops
+              page_title: Legeni – serveurs web
+              paquets_communs: &id002
+              - curl
+              - git
+              - htop
+              webapp_image: legeni07/legeni-webapp
+              webapp_version: 1.0.0
+            web2:
+              ansible_connection: docker
+              ansible_host: lab-web2-1
+              ansible_python_interpreter: /usr/bin/python3
+              ansible_user: ansible
+              equipe: *id001
+              page_title: Legeni – web2 (canari)
+              paquets_communs: *id002
+              webapp_image: legeni07/legeni-webapp
+              webapp_version: 1.0.0
+    wordpress_servers:
+      hosts:
+        db1:
+          ansible_connection: docker
+          ansible_host: lab-db1-1
+          ansible_python_interpreter: /usr/bin/python3
+          ansible_user: ansible
+          page_title: Legeni – serveur de données
+          paquets_communs:
+          - curl
+          webapp_image: legeni07/legeni-webapp
+          webapp_version: 1.0.0

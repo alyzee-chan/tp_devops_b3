@@ -1,0 +1,7 @@
+---
+k8s_namespace: legeni-staging
+webapp_replicas: 2
+webapp_env: staging
+webapp_color: "#17a2b8"
+redis_host: redis
+redis_port: 6379

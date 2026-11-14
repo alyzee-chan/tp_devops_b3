@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    environment {
+        DOCKERHUB_CRED = 'dockerhub'
+        DOCKERHUB_ID   = 'alyzeeaurore'
+    }
+    stages {
+        stage('Lire releases.txt') {
+            steps {
+                script {
+                    env.APP_VERSION = sh(script: "grep VERSION releases.txt | awk '{print \$2}'", returnStdout: true).trim()
+                    env.ODOO_URL    = sh(script: "grep ODOO_URL releases.txt | awk '{print \$2}'", returnStdout: true).trim()
+                    env.PGADMIN_URL = sh(script: "grep PGADMIN_URL releases.txt | awk '{print \$2}'", returnStdout: true).trim()
+                    echo "Version: ${env.APP_VERSION}, Odoo: ${env.ODOO_URL}, pgAdmin: ${env.PGADMIN_URL}"
+                }
+            }
+        }
+        stage('Build & Push Docker') {
+            steps {
+                sh "docker build -t ${DOCKERHUB_ID}/legeni-academy:${APP_VERSION} ."
+                withCredentials([usernamePassword(credentialsId: DOCKERHUB_CRED, usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
+                    sh "echo \$TOKEN | docker login -u \$USER --password-stdin"
+                    sh "docker push ${DOCKERHUB_ID}/legeni-academy:${APP_VERSION}"
+                }
+            }
+        }
+        stage('Deploiement Production (Ansible / Compose)') {
+            steps {
+                sh "docker compose up -d"
+            }
+        }
+    }
+}

@@ -1,0 +1,7 @@
+---
+k8s_namespace: legeni-prod
+webapp_replicas: 3
+webapp_env: prod
+webapp_color: "#28a745"
+redis_host: redis
+redis_port: 6379

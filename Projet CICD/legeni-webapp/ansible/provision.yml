@@ -1,0 +1,48 @@
+---
+- name: Lot 2 - Provisioning Infrastructure (Docker, Jenkins, Minikube)
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars:
+    jenkins_image: "alyzeeaurore/jenkins-custom:latest"
+    minikube_k8s_version: "v1.30.0"
+
+  tasks:
+    - name: Vérifier que Docker est installé et actif
+      ansible.builtin.command: docker info
+      register: docker_check
+      changed_when: false
+
+    - name: Statut Docker
+      ansible.builtin.debug:
+        msg: "Docker fonctionne correctement."
+
+    - name: Vérifier ou démarrer le conteneur Jenkins
+      community.docker.docker_container:
+        name: jenkins-custom
+        image: "{{ jenkins_image }}"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+      ignore_errors: true
+
+    - name: Vérifier ou démarrer Minikube
+      ansible.builtin.command: minikube status --format '{{.Host}}'
+      register: minikube_status
+      failed_when: false
+      changed_when: false
+
+    - name: Démarrer Minikube si inactif
+      ansible.builtin.command: "minikube start --driver=docker --kubernetes-version={{ minikube_k8s_version }}"
+      when: minikube_status.rc != 0
+
+    - name: Activer les addons Minikube (metrics-server, ingress)
+      ansible.builtin.command: "minikube addons enable {{ item }}"
+      loop:
+        - metrics-server
+        - ingress
+      register: addon_res
+      changed_when: "'already enabled' not in addon_res.stdout"
+      failed_when: false

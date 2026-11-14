@@ -1,5 +1,3 @@
----
-# TP 5.2 : premier playbook – installer nginx et publier une page
 - name: Installer et configurer nginx
   hosts: web
   become: true
@@ -19,14 +17,10 @@
         mode: "0644"
       notify: Recharger nginx
 
-    - name: Démarrer nginx et l'activer au démarrage
-      ansible.builtin.service:
-        name: nginx
-        state: started
-        enabled: true
+    - name: Démarrer nginx
+      ansible.builtin.command: service nginx restart
+      changed_when: false
 
   handlers:
     - name: Recharger nginx
-      ansible.builtin.service:
-        name: nginx
-        state: reloaded
+      ansible.builtin.command: service nginx reload

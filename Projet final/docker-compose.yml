@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  vitrine:
+    image: alyzeeaurore/legeni-academy:1.0
+    container_name: legeni-academy-app
+    ports:
+      - "8080:8080"
+    environment:
+      - ODOO_URL=http://localhost:8069
+      - PGADMIN_URL=http://localhost:5050
+    networks:
+      - legeni_network
+
+  odoo:
+    image: odoo:13.0
+    container_name: odoo_app
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    networks:
+      - legeni_network
+
+  db:
+    image: postgres:13
+    container_name: postgres_odoo
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo_db_data:/var/lib/postgresql/data/pgdata
+    networks:
+      - legeni_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_odoo
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@legeni.com
+      - PGADMIN_DEFAULT_PASSWORD=AdminLegeni2026!
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - legeni_network
+
+volumes:
+  odoo_db_data:
+  pgadmin_data:
+
+networks:
+  legeni_network:
+    driver: bridge

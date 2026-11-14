@@ -1,0 +1,4 @@
+---
+- name: Redémarrer docker
+  ansible.builtin.command: service docker restart
+  failed_when: false
